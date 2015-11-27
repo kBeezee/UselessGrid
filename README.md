@@ -1,2 +1,2 @@
 # UselessGrid
-grid system for grids.
+grid system for grids. -- via PyGame
