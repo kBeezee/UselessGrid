@@ -15,14 +15,15 @@ from globals import *
 
 # starting point for the smaller grid, which is generated in the globals module.
 big_Grid[9][9] = 1
-TOP_LEFT = [9, 9]
+TOP_LEFT = [0, 0]
 
 # make a smaller grid that is the visible area
 Grid = mapping.Gen_SmallGrid(big_Grid, TOP_LEFT)
 
 # Initialize pygame
 pygame.init()
- 
+pygame.key.set_repeat(100, 100)
+
 # Set the HEIGHT and WIDTH of the screen
 screen = pygame.display.set_mode(WINDOW_SIZE)
  
@@ -50,20 +51,18 @@ def Events_UpdateGrid(fGrid):  # Note, this is big_Grid
                 Running = False
             # Move the grid up and down
             if event.key == pygame.K_DOWN:
-                if TOP_LEFT[0] - 1 >= 0:
+                if mapping.GridOutOfBounds([TOP_LEFT[0]-1, TOP_LEFT[1]], "up"):
                     TOP_LEFT[0] -= 1
-                else:
-                    print "Cant Move"
             elif event.key == pygame.K_UP:
-                if TOP_LEFT[0] + 1 <= MAX_HEIGHT - g_HEIGHT:
+                if mapping.GridOutOfBounds([TOP_LEFT[0]+1, TOP_LEFT[1]], "up"):
                     TOP_LEFT[0] += 1
-                else:
-                    print "Cant Move"
             # move the grid left and right
-            if event.key == pygame.K_LEFT:
-                TOP_LEFT[1] += 1
+            elif event.key == pygame.K_LEFT:
+                if mapping.GridOutOfBounds([TOP_LEFT[0], TOP_LEFT[1]+1], "left"):
+                    TOP_LEFT[1] += 1
             elif event.key == pygame.K_RIGHT:
-                TOP_LEFT[1] -= 1
+                if mapping.GridOutOfBounds([TOP_LEFT[0], TOP_LEFT[1]-1], "left"):
+                    TOP_LEFT[1] -= 1
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # User clicks the mouse. Get the position
             pos = pygame.mouse.get_pos()
@@ -77,7 +76,6 @@ def Events_UpdateGrid(fGrid):  # Note, this is big_Grid
             else:
                 fGrid[fRow][fCol] = 1
                 print("Turned On", pos, "Grid coordinates: ", fRow, fCol)
-
     return fGrid
 
 # -------- Main Program Loop -----------
@@ -91,8 +89,8 @@ while Running:
     screen.fill(BLACK)
  
     # Draw the grid
-    for row in range(g_WIDTH):
-        for column in range(g_HEIGHT):
+    for row in range(g_HEIGHT):
+        for column in range(g_WIDTH):
             color = WHITE
             if Grid[row][column] == 1:
                 color = GREEN

@@ -4,11 +4,12 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
  
-# This sets the WIDTH and HEIGHT of each grid location
+# This sets the WIDTH and HEIGHT of each cell
 WIDTH = 20
 HEIGHT = 20
+# this sets how tall and long the visible screen is.
 g_HEIGHT = 20
-g_WIDTH = 20
+g_WIDTH = 40
 
 MAX_HEIGHT = 50
 MAX_WIDTH = 50
