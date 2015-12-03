@@ -1,5 +1,4 @@
 import myObjects
-import drawing
 
 #Note the tiles are being added to the group as they are being created. remember they are drawn in the order they are
 #added b/c of OrderedUpdates(), fill it as things should be displayed.W
