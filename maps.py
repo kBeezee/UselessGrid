@@ -7,6 +7,6 @@ import myObjects
 #it must add them as they should, and be all lined up neatly.
 # the last two args will only change anything if their change is >= +/- 16.
 def MakeMap0(tileset):
-    for y in range(0, 10):
-        for x in range(0, 10):
+    for y in range(0, 8):
+        for x in range(0, 8):
             myObjects.Tiles(tileset, y, x)

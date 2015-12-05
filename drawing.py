@@ -55,11 +55,15 @@ as the grid[0] (y)
 #this is one place holder for the player.
 fftSpirteSheet = libSpriteSheet.spritesheet("res/fftFemaleWhiteMage.png") #ColorKey: Black
 fftSpirteSheet.ColorKey = (255, 255, 255)
-myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), 5, 0, "p1")
+iCords = (0, 0)
+myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), iCords, "p1")
 
-#
-#fftSpirteSheet = libSpriteSheet.spritesheet("res/fftFemaleBlackMage.png") #ColorKey: Black
-#fftSpirteSheet.ColorKey = (255, 255, 255)
+#Jesus give cloud some arms!
+fftSpirteSheet = libSpriteSheet.spritesheet("res/fftCloud.png") #ColorKey: Black
+fftSpirteSheet.ColorKey = (255, 255, 255)
+iCords = (7,7)
+myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), iCords, "p2")
+
 #myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop,
 #                                                scale=(32,32), colorkey=fftSpirteSheet.ColorKey), x, y, "p2")
 #

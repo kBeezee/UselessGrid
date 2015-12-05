@@ -53,9 +53,8 @@ def Events_UpdateGrid():  # Note, this is big_Grid
 
         elif event.type == pygame.MOUSEMOTION:
             CursorTiles.empty()
-            for spr in AllSprites:
-                Cursor(drawing.tileset, spritesurface=spr.surface)
-                return
+            Cursor()
+
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # User clicks the mouse.
@@ -68,9 +67,12 @@ def Events_UpdateGrid():  # Note, this is big_Grid
             #1234567890 - Emma 12/2/15
             #collision for cursor and a sprite:
 
-            for y in CursorTiles:
-                pass
-
+            for cur in CursorTiles:
+                for spr in AllSprites:
+                    if cur.rect.colliderect(spr.rect):
+                        spr.select()
+                    else:
+                        spr.selected = False
 
 #Todo: How to get grid cords for an arbitrary x/y?
 #-?
@@ -86,7 +88,7 @@ while Running:
     AllTiles.update(screen)
     AllSprites.update(screen)
     CursorTiles.update(screen)
-
+    print "Tiles: %s \t Sprites: %s \t Cursors: %s" % (len(AllTiles), len(AllSprites), len(CursorTiles))
     screen.blit(write(str(pygame.mouse.get_pos())), (200, 475)) #Mouse Cords
 
     # Limit to 60 frames per second
