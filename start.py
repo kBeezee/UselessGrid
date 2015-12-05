@@ -21,7 +21,7 @@ pygame.key.set_repeat(100, 100)
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
 #hide mouse cursor
-pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(True)
 
 #have to do this down here because it has some code that requires a pygame screen to be created.
 import drawing
@@ -52,9 +52,10 @@ def Events_UpdateGrid():  # Note, this is big_Grid
                 Running = False
 
         elif event.type == pygame.MOUSEMOTION:
-            mPos = pygame.mouse.get_pos()
             CursorTiles.empty()
-            Cursor(drawing.tileset, mPos[1], mPos[0])
+            for spr in AllSprites:
+                Cursor(drawing.tileset, spritesurface=spr.surface)
+                return
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # User clicks the mouse.
@@ -66,23 +67,15 @@ def Events_UpdateGrid():  # Note, this is big_Grid
 
             #1234567890 - Emma 12/2/15
             #collision for cursor and a sprite:
-            for cur in CursorTiles:
-                for t in AllTiles:
-                    if (cur.rect2[0] == t.rect2[0] and cur.rect2[1]+32 == t.rect2[1]):
-                        #print "Tile Grid: %s " % [t.gridX, t.gridY]
-                        #print "Tile: %s " % t.rect2
-                        pass
-
-            for spr in AllSprites:
-                print spr.rect2
-                break
 
             for y in CursorTiles:
-                #print "Cursor: %s " % y.rect2
-                break
+                pass
+
 
 #Todo: How to get grid cords for an arbitrary x/y?
 #-?
+
+
 # -------- Main Program Loop -----------
 while Running:
     # Handle Events

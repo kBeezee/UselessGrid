@@ -9,7 +9,7 @@
 
 import pygame
 from globals import *
-
+dicScale = {'sprite': (32, 32), 'tile': (64, 64)}
 
 class spritesheet(object):
     def __init__(self, filename):
@@ -18,8 +18,8 @@ class spritesheet(object):
         except pygame.error, message:
             print 'Unable to load spritesheet image:', filename
             raise SystemExit, message
-    # Load a specific image from a specific rectangle
 
+    # Load a specific image from a specific rectangle
     def image_at(self, rectangle, scale=None, colorkey=None):
         "Loads image from x,y,x+offset,y+offset"
         rect = pygame.Rect(rectangle)
@@ -31,15 +31,15 @@ class spritesheet(object):
             image.set_colorkey(colorkey, pygame.RLEACCEL)
         if scale is None:
             scale = (scale[0], scale[1])
-        return pygame.transform.scale(image, scale)
-        #return image
-    # Load a whole bunch of images and return them as a list
 
+        return pygame.transform.scale(image, scale)
+
+    # Load a whole bunch of images and return them as a list
     def images_at(self, rects, scale=None, colorkey = None):
         "Loads multiple images, supply a list of coordinates"
         return [self.image_at(rect, scale, colorkey) for rect in rects]
-    # Load a whole strip of images
 
+    # Load a whole strip of images
     def load_strip(self, rect, image_count, scale=None, colorkey = None):
         "Loads a strip of images and returns them as a list"
         tups = [(rect[0]+rect[2]*x, rect[1], rect[2], rect[3])
