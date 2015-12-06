@@ -29,7 +29,7 @@ class spritesheet(object):
             if colorkey is -1:
                 colorkey = image.get_at((0,0))
             image.set_colorkey(colorkey, pygame.RLEACCEL)
-        if scale is None:
+        if scale is not None:
             scale = (scale[0], scale[1])
 
         return pygame.transform.scale(image, scale)

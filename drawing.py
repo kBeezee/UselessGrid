@@ -7,6 +7,17 @@ import maps
 #container tiles which are surfaces
 tileset = []
 dicScale = {'sprite': (32, 32), 'tile': (64, 64)}
+dictSprites = {'fArcher': 'res/fftClassSprites/fftArcherFemale.png', 'mArcher': 'res/fftClassSprites/fftArcherMale.png',
+               'Bard': 'res/fftClassSprites/fftBard.png',
+               'fBlackMage': 'res/fftClassSprites/fftBlackMageFemale.png', 'mBlackMage': 'res/fftClassSprites/fftBlackMageMale.png',
+               'fCalculator': 'res/fftClassSprites/fftCalculatorFemale.png', 'mCalculator': 'res/fftClassSprites/fftCalculatorMale.png',
+               'fChemist': 'res/fftClassSprites/fftChemistFemale.png', 'mChemist': 'res/fftClassSprites/fftChemistMale.png',
+               'fWhiteMage': 'res/fftClassSprites/fftWhiteMageFemale.png', 'mWhiteMage': 'res/fftClassSprites/fftWhiteMageMale.png',
+
+
+
+
+            'Cloud': 'res/fftNamedSprites/fftCloud.png'}
 
 """"
 Really this isnt drawing anything anymore, its preparing everything to be drawn.
@@ -15,7 +26,6 @@ For   tiles its getting them from a file, adding the *surfaces* to a regular lis
     after creating the sprite, adds it to the tile group.
 """""
 
-
 ########TILES########
 #Get A TileSheet
 TilesFileOne = libSpriteSheet.spritesheet("res/basic_ground_tiles-black.png")
@@ -23,8 +33,8 @@ TilesFileOne.ColorKey = (0, 0, 0)
 
 #Define where the tiles are
 blocks=[pygame.Rect(0, 0, 128, 128), pygame.Rect(128, 0, 128, 128), pygame.Rect(256, 0, 128, 128),
-        pygame.Rect(384, 0, 128, 128), pygame.Rect(512, 0, 128, 128), pygame.Rect(640, 0, 128, 128),
-        pygame.Rect(768, 0, 128, 128), pygame.Rect(896, 0, 128, 128)]
+pygame.Rect(384, 0, 128, 128), pygame.Rect(512, 0, 128, 128), pygame.Rect(640, 0, 128, 128),
+pygame.Rect(768, 0, 128, 128), pygame.Rect(896, 0, 128, 128)]
 
 #turn those tiles into a list of surfaces
 tileset += TilesFileOne.images_at(blocks, dicScale['tile'], colorkey=TilesFileOne.ColorKey)
@@ -39,31 +49,25 @@ tileset += TilesFileTwo.images_at(blocks, dicScale['tile'], colorkey=(0, 0, 0))
 #pass tilesets to be used to make the visible map.
 maps.MakeMap0(tileset)
 
-
 ########Sprites
-#Todo, get this to snap to be on top of a tile.
-""""
-Here is how to do the above ^^
-Step 1, call get the surface list from libSpriteSheet.py, pass the physical cords. (drawing.py)
-Step 2,
-
-when going from the top right to the right side of the screen:
-As the grid[1] (y) increases, the pixel location increses by 32
-as the grid[0] (y)
-"""""
-
 #this is one place holder for the player.
-fftSpirteSheet = libSpriteSheet.spritesheet("res/fftFemaleWhiteMage.png") #ColorKey: Black
+fftSpirteSheet = libSpriteSheet.spritesheet(dictSprites['fWhiteMage']) #ColorKey: Black
 fftSpirteSheet.ColorKey = (255, 255, 255)
 iCords = (0, 0)
 myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), iCords, "p1")
 
-#Jesus give cloud some arms!
-fftSpirteSheet = libSpriteSheet.spritesheet("res/fftCloud.png") #ColorKey: Black
+fftSpirteSheet = libSpriteSheet.spritesheet(dictSprites['Bard']) #ColorKey: Black
+fftSpirteSheet.ColorKey = (255, 255, 255)
+iCords = (4, 4)
+myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), iCords, "p1")
+
+#todo Dear Jesus, please give cloud some arms
+fftSpirteSheet = libSpriteSheet.spritesheet(dictSprites['Cloud']) #ColorKey: Black
 fftSpirteSheet.ColorKey = (255, 255, 255)
 iCords = (7,7)
 myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop, dicScale['sprite'],  colorkey=fftSpirteSheet.ColorKey), iCords, "p2")
 
-#myObjects.Player(fftSpirteSheet.images_at(fftWalkingLoop,
-#                                                scale=(32,32), colorkey=fftSpirteSheet.ColorKey), x, y, "p2")
-#
+fftCursors = libSpriteSheet.spritesheet("res/fftCursor0(Green).png")
+fftCursors.ColorKey = fftCursors.sheet.get_at((16,0))
+myObjects.BattleCursor = fftCursors.image_at(pygame.Rect(0, 0, 64, 64), dicScale['sprite'], colorkey=fftCursors.ColorKey)
+

@@ -2,8 +2,25 @@ from globals import *
 from numpy import *
 from mapping import *
 from mapping import PlayerOutOfBounds
+#import drawing
 import pygame
 from random import *
+
+BattleCursor = None
+def getTileCoordinates(point, tileHeight):
+    tempPt = [math.floor(point[1] / tileHeight), math.floor(point[0] / tileHeight)]
+    return tempPt
+
+def isoTo2D(Point):
+    tempPt = [(2 * Point[1] + Point[0]) / 2, (2 * Point[1] - Point[0]) / 2]
+    return tempPt
+    #}
+    #function isoTo2D(pt:Point):Point{
+    #var tempPt:Point = new Point(0, 0);
+    #tempPt.x = (2 * pt.y + pt.x) / 2;
+    #tempPt.y = (2 * pt.y - pt.x) / 2;
+    #return(tempPt);
+    #}
 
 class Player(pygame.sprite.Sprite):
     #todo, so now the problem is that this sprite is on a grid, it needs to use the iso() function to get where it belongs.
@@ -24,8 +41,8 @@ class Player(pygame.sprite.Sprite):
         y *= self.rect.width/2
         self.selected = False
 
-        #self.iso = [(x-y)+3*64, ((x+y)/2)+1*64] #the +3*64 and +1*64 are for a 'border'
-        self.iso = [((x - y)+3*64), (((x+y)/2)+1*64)-8]
+        #self.iso = [(x-y)+3*64, ((x+y)/2)+1*64] #the +3*64 and +1*64 are for a 'border' and the -4 and -12 are for centering on top of tile
+        self.iso = [((x - y)+3*64)-4, (((x+y)/2)+1*64)-12]
         #Animation
         self.imageCount = len(self.surface) - 1 #this is the image count.
         self.cImage = randrange(0, self.imageCount) #This is the image counter.
@@ -45,73 +62,30 @@ class Player(pygame.sprite.Sprite):
         else:
             self.AnimateSlower += 1
 
-
         #look at the INIT of this object to find that although the spirte is scaled to 32x32 when importing the spritesheet
         #we blit that 32x32 sprite to the center of a transparent 64x64 surface.  This is to help with the isometric
         #calculations
         self.surface[self.cImage].set_colorkey((0,0,0))
         if self.selected:
-            cSelected = pygame.Surface((64, 64))
-            cSelected.fill((255,0,0))
-            cSelected.set_alpha(125)
-            cSelected.blit(self.surface[self.cImage], (0,32))
-            #cSelected.blit(self.surface[self.cImage], self.iso)
-            #self.surface[self.cImage].blit(cSelected, (16,0))
-            #self.rect = fScreen.blit(cSelected, self.iso)
-            fScreen.blit(cSelected, (self.iso[0],self.iso[1]-32))
+            #Here, we are blitting the cursor to the sprite, but we have to make it a 64x64 surface, then put the smaller
+            #battle cursor on that surface, and adjust it to the top middle. then cursor to sprite, then sprite to screen.
+            cSelected1 = self.get64x64Surface(BattleCursor, (16,self.cImage+4))
+            cSelected1.set_colorkey((0,0,0))
+            cSelected1.blit(self.surface[self.cImage], (0,32))
+            self.rect = fScreen.blit(cSelected1, (self.iso[0],self.iso[1]-32))
+            cSelected1 = None
         else:
             self.rect = fScreen.blit(self.surface[self.cImage], self.iso)
             self.rect = pygame.Rect(self.rect[0]+16, self.rect[1], self.rect[2]-32, self.rect[3]-32)
 
     def get64x64Surface(self, surface, loc=(16, 16)):
-        tsur = pygame.Surface((64, 64))
-        tsur.set_colorkey((0,0,0))
-        tsur.fill((0,0,0))
+        tempSurface = pygame.Surface((64, 64))
+        tempSurface.set_colorkey((0,0,0))
 
-        #This will be important because of the tuple on the end, because it decides where on the transparent surface
-        #the sprite goes. (16, 16) = center
-        tsur.blit(surface, loc)
-        #
-        return tsur
-
-
-    def move(self, fBigGrid, fdir):
-        # get the direction, ie +/- to x/y
-        if fdir == "n":
-            fdir = (0, -1)
-        elif fdir == "s":
-            fdir = (0, 1)
-        elif fdir == "e":
-            fdir = (1, 0)
-        elif fdir == "w":
-            fdir = (-1, 0)
-
-        #The player object should always keep track of where it is so we dont have to hunt for it.
-        r = self.BigCords[0]
-        c = self.BigCords[1]
-        if PlayerOutOfBounds([r+fdir[0], c+fdir[1]], fdir):
-            fBigGrid[r+fdir[0]][c+fdir[1]] = self
-            self.BigCords = [r+fdir[0], c+fdir[1]]
-            fBigGrid[r][c] = 0 #todo this wont work, its got to remember what it was before player was there.
-        return fBigGrid
-
-    def centeronplayer(self, fTOP_LEFT):
-        #We should be centering the small grid on the red blip, unless it is to close to the edge.
-        #But we should allow the arrow keys to move around independent of the red blip.
-
-        nTOP = self.BigCords[0] - 5
-        nLEFT = self.BigCords[1] - 5
-        if nTOP < 0:
-            nTOP = 0
-        elif nTOP >= MAX_HEIGHT - g_HEIGHT:
-            nTOP = MAX_HEIGHT - g_HEIGHT
-
-        if nLEFT < 0:
-            nLEFT = 0
-        elif nLEFT >= MAX_WIDTH - g_WIDTH:
-            nLEFT = MAX_WIDTH - g_WIDTH
-
-        return [nTOP, nLEFT]
+        #This will be important because of the tuple on the end, it decides where on the transparent surface
+        #the sprite goes. (16, 16) = center, (16,0) = topcenter
+        tempSurface.blit(surface, loc)
+        return tempSurface
 
     def select(self):
         print "You clicked a sprite located at %s" % str(self.cart)
@@ -119,22 +93,16 @@ class Player(pygame.sprite.Sprite):
 
 
 class Tiles(pygame.sprite.Sprite):
-    def __init__(self, tileset, y, x, tIndex=""):
+    def __init__(self, tileset, y, x):
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.add(AllTiles)
         self.TileNumber = len(AllTiles) #count of all tiles
-
-        if tIndex != "":
-            self.surface = tileset[tIndex]
-        else:
-            self.surface = tileset[randrange(0, 1)] # decide what tile to use.
-
+        self.surface = tileset[randrange(0, 4)] # decide what tile to use.
         self.rect = self.surface.get_rect()
         self.cart = [x, y]
         x *= self.rect.height/2
         y *= self.rect.width/2
-        #so much props to
         #http://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-a-primer-for-game-developers--gamedev-6511
         self.iso = [(x-y)+3*64, ((x+y)/2)+1*64] #the +3*64 and +1*64 are for a 'border'
         #print self.cart, self.iso
@@ -142,34 +110,55 @@ class Tiles(pygame.sprite.Sprite):
     def update(self, fScreen):
         fScreen.blit(self.surface, self.iso)
 
-
 class Cursor(pygame.sprite.Sprite):
     def __init__(self, fSurface=None, cart=None):
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.add(CursorTiles)
         self.surface = pygame.Surface((0, 0))
-        self.surface.fill((0,0,0)) #this can come out eventually
-        self.surface.set_alpha(127)
+        self.rect = pygame.Rect(0,0,0,0)
         self.mPos = pygame.mouse.get_pos()
         self.mPos = (self.mPos[0], self.mPos[1])
-        #self.iso = ((2*self.mPos[1] + self.mPos[0]) / 2, (2 * self.mPos[1] - self.mPos[0]) / 2)
-
-        #afdsafd
-        self.cart = (math.floor(self.mPos[0] / 64), math.floor(self.mPos[1] / 64))
-        #what if i got the cartesian cords for this 10x10 rect, and then see if it is the same as any of the sprites
+        self.cart = [0, 0]
 
 
-    def selected(self):
-        for t in AllTiles:
-            if (self.rect2[0] == t.rect2[0] and self.rect2[1]-31 <= t.rect2[1]):
-                print "Tile Grid: %s " % [t.gridX, t.gridY]
-                print "Tile: %s " % t.rect2
-                print "--"
-                print "Cursor Tile: %s" % self.rect2
-                print self.rect2.center
-
+        #ScreenCords to Map Cords
+        print self.mPos #x= [0]
+        xCursor = self.mPos[0]
+        yCursor = self.mPos[1]
+        TILE_HEIGHT = 64 / 2
+        TILE_WIDTH = 64
+        xMouseTile = (xCursor / TILE_WIDTH / 2 + yCursor / TILE_HEIGHT / 2) / 2;
+        yMouseTile = (yCursor / TILE_HEIGHT / 2 - xCursor / TILE_WIDTH  / 2) / 2;
+        print (xMouseTile, yMouseTile)
+        #public PointF AbsoluteToMap(PointF screenPoint)
+        #{
+        #PointF mapPoint = new PointF();
+        #screenPoint.X /= (Scale / 2);
+        #screenPoint.Y /= (Scale / 4);
+        #
+        #mapPoint.X = (screenPoint.X + screenPoint.Y) / 2;
+        #mapPoint.Y = (screenPoint.X - screenPoint.Y) / 2;
+        #return mapPoint;
+        #}
     def update(self, fScreen):
         #print "mPos: %s /t cart: %s" % (self.mPos, self.cart)
         self.rect = fScreen.blit(self.surface, self.mPos)
 
+
+
+        self.cart = getTileCoordinates((isoTo2D((self.mPos))), 64)
+        #getTileCoordinates(isoTo2D(screen point), tile height);
+        #function getTileCoordinates(pt:Point, tileHeight:Number):Point{
+        #var tempPt:Point = new Point(0, 0);
+        #tempPt.x = Math.floor(pt.x / tileHeight);
+        #tempPt.y = Math.floor(pt.y / tileHeight);
+        #return(tempPt);
+
+        #}
+        #function isoTo2D(pt:Point):Point{
+        #var tempPt:Point = new Point(0, 0);
+        #tempPt.x = (2 * pt.y + pt.x) / 2;
+        #tempPt.y = (2 * pt.y - pt.x) / 2;
+        #return(tempPt);
+        #}
